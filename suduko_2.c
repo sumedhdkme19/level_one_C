@@ -61,10 +61,12 @@ int check_for_rows(sboard s, int invr[9]){
     c = 0;
     o = 0;
     for (int i=0; i<9; i++){
-        for(int j=0; j<9; j++){
+        for(int j=0; j<8; j++){
             c = o;
-            for(int k=j+1;k<8;k++){
-                if(s.board[i][j] == s.board[i][k] && s.submatrix[i][j] != 0){
+            for(int k=j+1;k<9;k++){
+                if(s.board[i][j] == 0)
+                    break;
+                if(s.board[i][j] == s.board[i][k]){
                     invr[i] = i+1;
                     c++;
                     break;
@@ -85,10 +87,12 @@ int check_for_columns(sboard s, int invc[9]){
     c = 0;
     o = 0;
     for (int i=0; i<9; i++){
-        for(int j=0; j<9; j++){
+        for(int j=0; j<8; j++){
             c = o;
-            for(int k=j+1;k<8;k++){
-                if(s.board[j][i] == s.board[k][i] && s.submatrix[j][i] != 0){
+            for(int k=j+1;k<9;k++){
+                if(s.board[j][i] == 0)
+                    break;
+                if(s.board[j][i] == s.board[k][i]){
                     invc[i] = i+1;
                     c++;
                     break;
@@ -111,10 +115,12 @@ int check_for_submatrix(sboard s, int invsm[9]){
     c = 0;
     o = 0;
     for (int i=0; i<9; i++){
-        for(int j=0; j<9; j++){
+        for(int j=0; j<8; j++){
             o = c;
-            for(int k=j+1;k<8;k++){
-                if(s.submatrix[i][j] == s.submatrix[i][k] && s.submatrix[i][j] != 0){ 
+            for(int k=j+1;k<9;k++){
+                if(s.submatrix[i][j] == 0)
+                    break;
+                if(s.submatrix[i][j] == s.submatrix[i][k]){ 
                     invsm[i] = i+1;
                     c++;
                     break;
@@ -138,12 +144,12 @@ int main(){
     int invr[9] = {0,0,0,0,0,0,0,0,0};
     int invc[9] = {0,0,0,0,0,0,0,0,0};
     int invsm[9] = {0,0,0,0,0,0,0,0,0};
-    printf("\n\n");
+    
     if(check_for_completeness(s) && check_for_columns(s, invc) && check_for_rows(s,invc) && check_for_submatrix(s, invsm)){
-        printf("complete\n");
+        printf("\ncomplete\n");
     }
-    else if(check_for_columns(s, invc) && check_for_rows(s,invc) && check_for_submatrix(s, invsm) && !check_for_completeness(s)){
-        printf("incomplete but viable\n");
+    else if(check_for_columns(s, invc) && check_for_rows(s,invr) && check_for_submatrix(s, invsm) && !check_for_completeness(s)){
+        printf("\nincomplete but viable\n");
     }
     else{
         ///need to write this part....
@@ -165,7 +171,5 @@ int main(){
         printf("\n");
 
     }
-    printf("\n\n");
-    display_submatrix(s);
     return 0;
 }
