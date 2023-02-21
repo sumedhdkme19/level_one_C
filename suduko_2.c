@@ -6,7 +6,7 @@ struct sudukoboard{
 };
 typedef struct sudukoboard sboard;
 
-sboard input_board(){
+sboard input_board(){ //Inputs a 9X9 2D matrix representing a suduko board
     sboard s;
     for (int i=0; i<9; i++){
         for(int j=0; j<9; j++){
@@ -16,20 +16,27 @@ sboard input_board(){
     return s;
 }
 
-void get_submatrix(sboard *s){
+void get_submatrix(sboard *s) // gets all the 9 sub-matrices of a suduko board in a 1X9 1D array form
+{ 
+    /*The logic of the nested-loop iterations is such that it starts from the left
+    top corner sub-matrix then moves vertically down covering the remaining 2 sub-matrices on the left side.
+    Then it moves horizontally to the right, starts from the top [the top center submatrix] and moves down again.
+    This procedure is repeated for the last 3 sub-matrices on the right side as well. The matrix numbers is
+    sequential and is in the order of appearence in this iteration.
+    */
     int i, j, k, l, r, c;
-    r = 0;
-    c = 0;
-    for(l = 1; l<=3; l++){
-        for(i=1; i<=3; i++){
-            for(j=(i-1)*3; j<i*3; j++){
-                for(k=(l-1)*3; k<l*3; k++){
+    r = 0; //used for the row indexing of the submatrix 2D array
+    c = 0; //used for the column indexing of the submatrix 2D array
+    for(l = 1; l<=3; l++){ //helps in horizontal displacement from left-to-right in 3 steps, that is, 0-2 -> 3-5 -> 6-8
+        for(i=1; i<=3; i++){ // helps in vertical displacement from top-to-bottom in 3 steps, that is, 0-2 -> 3-5 -> 6-8
+            for(j=(i-1)*3; j<i*3; j++){ //row operating loop
+                for(k=(l-1)*3; k<l*3; k++){ //column operating loop
                     s->submatrix[r][c] = s->board[j][k];
                     c++;
                 }
             }
-            r++;
-            c = 0;
+            r++; //The row indexer is incerment after each submatrix is successfully extracted
+            c = 0; //The column indexer is set to 0 again so the next submatrix can be taken in next array of the sub-matrix 2D array
         }
 
     }
@@ -48,7 +55,7 @@ void display_submatrix(sboard s){
 int check_for_completeness(sboard s){
     for (int i=0; i<9; i++){
         for(int j=0; j<9; j++){
-            if(s.board[i][j] == 0){
+            if(s.board[i][j] == 0){ //here 0 represents void or incompleteness in the suduko board
                 return 0;
             }
         }
@@ -71,7 +78,7 @@ int check_for_rows(sboard s, int invr[9]){
                     c++;
                     break;
                 }
-                if(c!=o){
+                if(c!=o){ //This condition checks whether a row is inviable already, if so then it breaks to the next row
                 break;
             }
             }
@@ -82,7 +89,8 @@ int check_for_rows(sboard s, int invr[9]){
     }
     return 1;
 }
-int check_for_columns(sboard s, int invc[9]){
+int check_for_columns(sboard s, int invc[9]) //This functions checks for the columns that have repetition of elements
+{
     int c, o;
     c = 0;
     o = 0;
@@ -97,7 +105,7 @@ int check_for_columns(sboard s, int invc[9]){
                     c++;
                     break;
                 }
-                if(c!=o){
+                if(c!=o){ //This condition checks whether a column is inviable already, if so then it breaks to the next column
                     break;
             }
             }
@@ -126,7 +134,7 @@ int check_for_submatrix(sboard s, int invsm[9]){
                     break;
                 }
             }
-            if(c!=o){
+            if(c!=o){ //This condition checks whether a submatrix is inviable already, if so then it breaks to the next sub-matrix
                 break;
             }
         }
@@ -136,23 +144,23 @@ int check_for_submatrix(sboard s, int invsm[9]){
     }
     return 1;
 }
-int main(){
-    printf("Hello World!\n");
-    sboard s;
-    s = input_board();
-    get_submatrix(&s);
+
+void checker(sboard s){
     int invr[9] = {0,0,0,0,0,0,0,0,0};
     int invc[9] = {0,0,0,0,0,0,0,0,0};
     int invsm[9] = {0,0,0,0,0,0,0,0,0};
-    
-    if(check_for_completeness(s) && check_for_columns(s, invc) && check_for_rows(s,invc) && check_for_submatrix(s, invsm)){
+    int cr = check_for_rows(s, invr);
+    int ccl = check_for_columns(s, invc);
+    int cc = check_for_completeness(s);
+    int csm = check_for_submatrix(s, invsm);
+
+    if(cc && ccl && cr && csm){
         printf("\ncomplete\n");
     }
-    else if(check_for_columns(s, invc) && check_for_rows(s,invr) && check_for_submatrix(s, invsm) && !check_for_completeness(s)){
+    else if(ccl && cr && csm && !cc){
         printf("\nincomplete but viable\n");
     }
     else{
-        ///need to write this part....
         printf("non-viable\n rows: ");
         for(int i=0; i<9; i++){
             if(invr[i] != 0)
@@ -171,5 +179,12 @@ int main(){
         printf("\n");
 
     }
+}
+int main(){
+    printf("Hello World!\n");
+    sboard s;
+    s = input_board(); 
+    get_submatrix(&s); 
+    checker(s);
     return 0;
 }
